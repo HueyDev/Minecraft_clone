@@ -13,7 +13,7 @@ struct Game {
 	Camera* camera;
 
 	RenderChunk *chunks[WORLD_CHUNK_WIDTH * WORLD_CHUNK_HEIGHT];
-	uint numberOfChunks = NUMBER_OF_CHUNKS;
+	uint numberOfChunks = WORLD_CHUNK_WIDTH * WORLD_CHUNK_HEIGHT;
 
 	Game();
 	~Game();

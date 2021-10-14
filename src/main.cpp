@@ -10,6 +10,8 @@ float lastY, lastX;
 GLFWwindow* window;
 
 auto lastFrame = std::chrono::high_resolution_clock::now();
+double lastTime = 0;
+int numOfFrames = 0;
 
 glm::vec3 cameraDir = glm::vec3(0, 0, 0);
 
@@ -79,10 +81,16 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	float xoffset = xpos - lastX;
 	float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
 
+  // std::cout << "Mouse movement: " << xoffset << " , " << yoffset << std::endl;
+  // std::cout << "Last pos: " << lastX << " , " << lastY << std::endl;
+  // std::cout << "Current pos: " << xpos << " , " << ypos << std::endl;
+
+  glfwSetCursorPos(window, 0, 0);
+
 	lastX = xpos;
 	lastY = ypos;
 
-	game->camera->ProcessMouseMovement(xoffset, yoffset);
+	game->camera->ProcessMouseMovement(xoffset, yoffset, true);
 }
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
@@ -94,7 +102,13 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 
 
 void render() {
-	//std::cout << "RENDER\n";
+	numOfFrames++;
+  if(glfwGetTime()-lastTime >= 1){
+    std::cout << numOfFrames << std::endl;
+    numOfFrames = 0;
+    lastTime = glfwGetTime();
+  }
+
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	game->render();
@@ -138,7 +152,7 @@ int main() {
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 #pragma endregion
 

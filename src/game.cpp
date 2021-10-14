@@ -109,7 +109,7 @@ Game::Game() {
     for (int i = 0; i < WORLD_CHUNK_WIDTH; i++) {
         for (int j = 0; j < WORLD_CHUNK_HEIGHT; j++) {
             Chunk* c = new Chunk(i, j);
-            this->chunks[i*WORLD_CHUNK_HEIGHT + j] = new RenderChunk(&(this->images), 0, 0, c);
+            this->chunks[i*WORLD_CHUNK_HEIGHT + j] = new RenderChunk(&(this->images), i, j, c);
         }
     }
 
@@ -129,6 +129,7 @@ Game::~Game() {
 }
 
 void Game::render() {
+  //std::cout << "render\n";
     this->shader->use();
 
     glm::mat4 transform = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH/(float)SCREEN_HEIGHT, 0.1f, 100.0f) * this->camera->GetViewMatrix();

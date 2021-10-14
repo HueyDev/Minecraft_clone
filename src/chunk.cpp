@@ -51,7 +51,7 @@ uint** Chunk::genHeightMap() {
 	FastNoiseLite pn;
 	pn.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
 	//pn.SetFractalOctaves(20);
-	pn.SetFrequency(100.0f);
+	pn.SetFrequency(HEIGHT_MAP_FREQUENCY);
 
 	for (int j = 0; j < CHUNK_WIDTH; j++) {
 		data[j] = new uint[CHUNK_DEPTH];
