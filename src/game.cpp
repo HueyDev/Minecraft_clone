@@ -5,76 +5,11 @@
 #include <stb_image.h>
 #include <stdlib.h>
 
-float vertex[CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT * 24 * 5];
-
-uint index = 0;
-
-void addVertexValue(float v) {
-    //std::cout << "TEST\n";
-   /* if (index > 15728640) {
-        std::cout << index << std::endl;
-    }*/
-    vertex[index] = v;
-    index++;
-}
-
-void addVertex(float v1, float v2, float v3, float v4, float v5) {
-    addVertexValue(v1);
-    addVertexValue(v2);
-    addVertexValue(v3);
-    addVertexValue(v4);
-    addVertexValue(v5);
-}
-
-void buildVertex() {
-    index = 0;
-
-    for (int i = 0; i < CHUNK_WIDTH; i++) {
-        for (int j = 0; j < CHUNK_HEIGHT; j++) {
-            for (int k = 0; k < CHUNK_DEPTH; k++) {
-
-                //TOP
-                addVertex(0.0f + i * 0.5f, 0.5f + j * 0.5f, 0.0f + k * 0.5f, 0.0f, 0.0f);
-                addVertex(0.5f + i * 0.5f, 0.5f + j * 0.5f, 0.0f + k * 0.5f, 1.0f, 0.0f);
-                addVertex(0.5f + i * 0.5f, 0.5f + j * 0.5f, 0.5f + k * 0.5f, 1.0f, 1.0f);
-                addVertex(0.0f + i * 0.5f, 0.5f + j * 0.5f, 0.5f + k * 0.5f, 0.0f, 1.0f);
-
-                //BOTTOM
-                addVertex(0.0f + i * 0.5f, 0.0f + j * 0.5f, 0.0f + k * 0.5f, 0.0f, 0.0f);
-                addVertex(0.5f + i * 0.5f, 0.0f + j * 0.5f, 0.0f + k * 0.5f, 1.0f, 0.0f);
-                addVertex(0.5f + i * 0.5f, 0.0f + j * 0.5f, 0.5f + k * 0.5f, 1.0f, 1.0f);
-                addVertex(0.0f + i * 0.5f, 0.0f + j * 0.5f, 0.5f + k * 0.5f, 0.0f, 1.0f);
-
-                //RIGHT
-                addVertex(0.5f + i * 0.5f, 0.0f + j * 0.5f, 0.0f + k * 0.5f, 0.0f, 0.0f);
-                addVertex(0.5f + i * 0.5f, 0.0f + j * 0.5f, 0.5f + k * 0.5f, 1.0f, 0.0f);
-                addVertex(0.5f + i * 0.5f, 0.5f + j * 0.5f, 0.5f + k * 0.5f, 1.0f, 1.0f);
-                addVertex(0.5f + i * 0.5f, 0.5f + j * 0.5f, 0.0f + k * 0.5f, 0.0f, 1.0f);
-
-                //LEFT
-                addVertex(0.0f + i * 0.5f, 0.0f + j * 0.5f, 0.5f + k * 0.5f, 0.0f, 0.0f);
-                addVertex(0.0f + i * 0.5f, 0.0f + j * 0.5f, 0.0f + k * 0.5f, 1.0f, 0.0f);
-                addVertex(0.0f + i * 0.5f, 0.5f + j * 0.5f, 0.0f + k * 0.5f, 1.0f, 1.0f);
-                addVertex(0.0f + i * 0.5f, 0.5f + j * 0.5f, 0.5f + k * 0.5f, 0.0f, 1.0f);
-
-                //BACK
-                addVertex(0.5f + i * 0.5f, 0.0f + j * 0.5f, 0.5f + k * 0.5f, 0.0f, 0.0f);
-                addVertex(0.0f + i * 0.5f, 0.0f + j * 0.5f, 0.5f + k * 0.5f, 1.0f, 0.0f);
-                addVertex(0.0f + i * 0.5f, 0.5f + j * 0.5f, 0.5f + k * 0.5f, 1.0f, 1.0f);
-                addVertex(0.5f + i * 0.5f, 0.5f + j * 0.5f, 0.5f + k * 0.5f, 0.0f, 1.0f);
-
-                //FRONT
-                addVertex(0.0f + i * 0.5f, 0.0f + j * 0.5f, 0.0f + k * 0.5f, 0.0f, 0.0f);
-                addVertex(0.5f + i * 0.5f, 0.0f + j * 0.5f, 0.0f + k * 0.5f, 1.0f, 0.0f);
-                addVertex(0.5f + i * 0.5f, 0.5f + j * 0.5f, 0.0f + k * 0.5f, 1.0f, 1.0f);
-                addVertex(0.0f + i * 0.5f, 0.5f + j * 0.5f, 0.0f + k * 0.5f, 0.0f, 1.0f);
-            }
-        }
-    }
-
-}
-
 uint buildTexture(const char* filePath) {
+
+    std::cout << "Compiling image at " << filePath << std::endl;
+
+    //stbi_set_flip_vertically_on_load(true);
 
     uint tex = 0;
     int width, height, nrChannels;
@@ -87,8 +22,8 @@ uint buildTexture(const char* filePath) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     // set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     // load image, create texture and generate mipmaps
     unsigned char* data = stbi_load(("resources/" + std::string(filePath)).c_str(), &width, &height, &nrChannels, 0);
@@ -104,6 +39,8 @@ uint buildTexture(const char* filePath) {
     }
     stbi_image_free(data);
 
+    std::cout << "Result: " << tex << std::endl;
+
     return tex;
 }
 
@@ -118,40 +55,63 @@ std::pair<TileType, uint*> buildImageBox(uint v1, uint v2, uint v3, uint v4, uin
     return std::pair<TileType, uint*>(t, value);
 }
 
+std::pair<TileType, uint*> buildImageBox(const char* v1, const char* v2, const char* v3, const char* v4, const char* v5, const char* v6, TileType t) {
+    uint* value = (uint*)malloc(6 * sizeof(uint));
+    value[0] = buildTexture(v1);
+    value[1] = buildTexture(v2);
+    value[2] = buildTexture(v3);
+    value[3] = buildTexture(v4);
+    value[4] = buildTexture(v5);
+    value[5] = buildTexture(v6);
+    return std::pair<TileType, uint*>(t, value);
+}
+
 void Game::constructImages() {
     // ORDER: TOP, BOTTOM, RIGHT, LEFT, BACK, FRONT
+
+    //dirt
     uint dirtTex = buildTexture("dirt.png");
     this->images.insert(buildImageBox(dirtTex, dirtTex, dirtTex, dirtTex, dirtTex, dirtTex, DIRT));
+
+    //TEST_VOXEL
+    this->images.insert(buildImageBox("test_top.png", "test_bottom.png", "test_right.png", "test_left.png", "test_back.png", "test_front.png", TEST_VOXEL));
+
+    //GRASS
+    uint grassTop = buildTexture("grass_top.png");
+    uint grassSide = buildTexture("grass_side.png");
+    this->images.insert(buildImageBox(grassTop, dirtTex, grassSide, grassSide, grassSide, grassSide, GRASS));
+
 }
 
 Game::Game() {
-
-    buildVertex();
+    std::cout << "BUILDING GAME\n";
+    //buildVertex();
 
     this->shader = new Shader("voxel.vs","voxel.fs");
     this->camera = new Camera(glm::vec3(0.0f, 0.0f, -3.0f));
 
-    glGenVertexArrays(1, &(this->VAO));
-    glBindVertexArray(this->VAO);
-
-
-    unsigned int VBO;
-    glGenBuffers(1, &VBO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-    glBufferData(GL_ARRAY_BUFFER, index, vertex, GL_STATIC_DRAW);
-
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5*sizeof(float), (void*)0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5*sizeof(float), (void*)(3 * sizeof(float)));
+    this->shader->use();
+    this->shader->setInt("top", 0);
+    this->shader->setInt("bottom", 1);
+    this->shader->setInt("right", 2);
+    this->shader->setInt("left", 3);
+    this->shader->setInt("back", 4);
+    this->shader->setInt("front", 5);
 
     this->constructImages();
 
-    Chunk* c = new Chunk(0, 0);
+    /*Chunk* c = new Chunk(0, 0);
+    Chunk* ch = new Chunk(1, 0);
 
-    this->chunks[0] = new RenderChunk(0, 0, &(this->images), c);
+    this->chunks[0] = new RenderChunk(&(this->images), 0, 0, c);
+    this->chunks[1] = new RenderChunk(&(this->images), 1, 0, ch);*/
+
+    for (int i = 0; i < WORLD_CHUNK_WIDTH; i++) {
+        for (int j = 0; j < WORLD_CHUNK_HEIGHT; j++) {
+            Chunk* c = new Chunk(i, j);
+            this->chunks[i*WORLD_CHUNK_HEIGHT + j] = new RenderChunk(&(this->images), 0, 0, c);
+        }
+    }
 
     std::cout << "FINISHED chunk gen\n";
 }
@@ -169,12 +129,10 @@ Game::~Game() {
 }
 
 void Game::render() {
-    //std::cout << "GAME RENDERING\n";
-    glBindVertexArray(this->VAO);
     this->shader->use();
 
     glm::mat4 transform = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH/(float)SCREEN_HEIGHT, 0.1f, 100.0f) * this->camera->GetViewMatrix();
-    
+
     this->shader->setMat4("transform", transform);
     
     for (int i = 0; i < this->numberOfChunks; i++) {

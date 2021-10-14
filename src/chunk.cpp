@@ -1,5 +1,6 @@
 #include <chunk.hpp>
 #include <renderChunk.hpp>
+#include <FastNoise.hpp>
 
 Chunk::Chunk() {
 	this->x = 0;
@@ -22,13 +23,13 @@ void Chunk::genChunkMap() {
 			for (int z = 0; z < CHUNK_DEPTH; z++) {
 				if (i > heightMap[j][z]) {
 					//std::cout << "SET AIR\n";
-					this->data[j][i][z] = DIRT;
+					this->data[j][i][z] = AIR;
 				}
 				else if (i == heightMap[j][z]) {
-					this->data[j][i][z] = DIRT;
+					this->data[j][i][z] = GRASS;
 				}
 				else {
-					//std::cout << "SET DIRT\n";
+					//std::cout << "SET TEST_VOXEL\n";
 					this->data[j][i][z] = DIRT;
 				}
 			}
@@ -46,13 +47,18 @@ uint** Chunk::genHeightMap() {
 
 	data = new uint*[CHUNK_WIDTH];
 
-	PerlinNoise pn = PerlinNoise(WORLD_SEED);
+	//PerlinNoise pn = PerlinNoise(WORLD_SEED);
+	FastNoiseLite pn;
+	pn.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+	//pn.SetFractalOctaves(20);
+	pn.SetFrequency(100.0f);
 
 	for (int j = 0; j < CHUNK_WIDTH; j++) {
 		data[j] = new uint[CHUNK_DEPTH];
 		for (int i = 0; i < CHUNK_DEPTH; i++) {
-			data[j][i] = (uint)(pn.noise((float)(j+this->x*CHUNK_WIDTH) / maxIntSize(), (float)(i+this->y*CHUNK_DEPTH) / maxIntSize(), 0.1f) * (MAX_HEIGHT-MIN_HEIGHT)) + MIN_HEIGHT;
-			std::cout << pn.noise((float)(j + this->x * CHUNK_WIDTH) / maxIntSize(), (float)(i + this->y * CHUNK_DEPTH) / maxIntSize(), 0.1f) << std::endl;
+			data[j][i] = (uint)(pn.GetNoise((float)(j+this->x*CHUNK_WIDTH) / MAP_SIZE, (float)(i+this->y*CHUNK_DEPTH) / MAP_SIZE) * (MAX_HEIGHT-MIN_HEIGHT)) + MIN_HEIGHT;
+			//std::cout << pn.GetNoise((float)(j + this->x * CHUNK_WIDTH) / MAP_SIZE, (float)(i + this->y * CHUNK_DEPTH) / MAP_SIZE) << std::endl;
+			//std::cout << data[j][i] << std::endl;
 		}
 	}
 

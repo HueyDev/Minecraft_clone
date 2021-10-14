@@ -1,5 +1,5 @@
 #include <camera.hpp>
-
+#include <iostream>
 
 
 
@@ -46,6 +46,8 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constr
         if (this->Pitch < -89.0f)
             this->Pitch = -89.0f;
     }
+
+    //std::cout << this->Pitch << std::endl;
 
     // update Front, Right and Up Vectors using the updated Euler angles
     updateCameraVectors();

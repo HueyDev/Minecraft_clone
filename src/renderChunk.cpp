@@ -1,6 +1,14 @@
 #include <renderChunk.hpp>
 #include <glad/glad.h>
 
+// Does not include face id (added on in buildFace())
+float defaultFace[4 * 5] = {
+	-VOXEL_SIZE / 2, -VOXEL_SIZE/2, 0.0f, 1.0f, 1.0f,
+	 VOXEL_SIZE / 2, -VOXEL_SIZE/2, 0.0f, 0.0f, 1.0f,
+	 VOXEL_SIZE / 2,  VOXEL_SIZE / 2, 0.0f, 0.0f, 0.0f,
+	-VOXEL_SIZE / 2,  VOXEL_SIZE/2, 0.0f, 1.0f, 0.0f,
+
+};
 
 void callback(void *t) {
 	static_cast<RenderChunk*>(t)->updateMesh();
@@ -10,15 +18,12 @@ unsigned int maxIntSize() {
 	return pow(2, sizeof(int) * 8);
 }
 
-RenderChunk::RenderChunk(uint x, uint y, std::map<TileType, uint*> *origImages, Chunk *c) {
+RenderChunk::RenderChunk(std::map<TileType, uint*>* images, uint x, uint y, Chunk *c) {
 
 	this->x = x;
 	this->y = y;
-	this->index = 0;
-	this->imageIndex = 0;
-	this->origImages = origImages;
-	glGenBuffers(1, &(this->EBO));
 	this->chunk = c;
+	this->images = images;
 
 	this->chunk->updateCallback = callback;
 	this->chunk->obj = (void*)this;
@@ -27,91 +32,197 @@ RenderChunk::RenderChunk(uint x, uint y, std::map<TileType, uint*> *origImages, 
 
 }
 
-void RenderChunk::addValue(uint val) {
-	this->data[this->index] = val;
-	this->index++;
+glm::mat4 getBoxFace(Face f) {
+	glm::mat4 val = glm::mat4(1.0f);
+
+	glm::mat4 def = glm::translate(val, glm::vec3(0.0f, 0.0f, -VOXEL_SIZE / 2));
+
+	switch (f) {
+	case TOP:
+		return glm::rotate(val, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)) * def;
+	case BOTTOM:
+		return glm::rotate(val, glm::radians(270.0f), glm::vec3(1.0f, 0.0f, 0.0f)) * def;
+	case RIGHT:
+		return glm::rotate(val, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)) * def;
+	case LEFT:
+		return glm::rotate(val, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f)) * def;
+	case BACK:
+		return glm::rotate(val, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)) * def;
+	case FRONT:
+		return def;
+	}
 }
 
-void RenderChunk::addTriangle(uint x, uint y, uint z) {
-	this->addValue(x);
-	this->addValue(y);
-	this->addValue(z);
+void RenderChunk::buildFace(TileType t, Face f, glm::vec3 loc) {
+	if (this->data.find(t) == this->data.end()) {
+		this->data.insert(std::pair<TileType, VoxelRenderDataTemp*>(t, new VoxelRenderDataTemp()));
+	}
+	VoxelRenderDataTemp* data = this->data.at(t);
+
+	for (int i = 0; i < 4; i++) {
+		int ind = i * 5;
+		glm::vec4 pointData = glm::translate(glm::mat4(1.0f), loc) * getBoxFace(f) * glm::vec4(defaultFace[ind], defaultFace[ind + 1], defaultFace[ind + 2], 1.0f);
+		data->vertex.push_back(pointData.x);
+		data->vertex.push_back(pointData.y);
+		data->vertex.push_back(pointData.z);
+		data->vertex.push_back(defaultFace[ind+3]);
+		data->vertex.push_back(defaultFace[ind+4]);
+		data->vertex.push_back(f);
+
+		/*if (f != 0) {
+			std::cout << (float)f << std::endl;
+		}*/
+	}
+
+	data->EBO.push_back(data->index);
+	data->EBO.push_back(data->index+1);
+	data->EBO.push_back(data->index+2);
+	data->EBO.push_back(data->index);
+	data->EBO.push_back(data->index+2);
+	data->EBO.push_back(data->index+3);
+
+	data->index += 4;
 }
 
-void RenderChunk::addSquare(uint v1, uint v2, uint v3, uint v4, uint image) {
-	
-	this->addTriangle(v1, v2, v3);
-	this->addTriangle(v1, v3, v4);
-	this->images[this->imageIndex] = image;
-	this->imageIndex++;
+void RenderChunk::buildBuffers() {
+	this->numOfVoxels = 0;
+	this->renderId = (uint*)malloc(this->data.size() * (1 * sizeof(uint) + 6 * sizeof(uint) + 1 * sizeof(uint)));
+
+	uint index = 0;
+
+	for (std::pair<TileType, VoxelRenderDataTemp*> d : this->data) {
+		uint VAO;
+		glGenVertexArrays(1, &VAO);
+		glBindVertexArray(VAO);
+
+		uint VBO;
+		glGenBuffers(1, &VBO);
+
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+		float* vertexData = (float*)malloc(d.second->vertex.size() * sizeof(float));
+		std::copy(d.second->vertex.begin(), d.second->vertex.end(), vertexData);
+
+		glBufferData(GL_ARRAY_BUFFER, d.second->vertex.size() * sizeof(float), vertexData, GL_DYNAMIC_DRAW);
+
+		free(vertexData);
+
+
+		uint EBO;
+		glGenBuffers(1, &EBO);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+
+
+		uint* eboData = (uint*)malloc(d.second->EBO.size() * sizeof(uint));
+		std::copy(d.second->EBO.begin(), d.second->EBO.end(), eboData);
+
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, d.second->EBO.size() * sizeof(uint), eboData, GL_DYNAMIC_DRAW);
+		//std::cout << d.second->EBO.size() << " SIZE\n";
+
+		free(eboData);
+
+		this->renderId[index] = VAO;
+
+		uint* images = (uint*)malloc(6 * sizeof(uint));
+		memcpy(images, this->images->at(d.first), 6 * sizeof(uint));
+
+		std::cout << "Building buffer for type " << d.first << std::endl;
+
+		this->renderId[index + 1] = images[0];
+		this->renderId[index + 2] = images[1];
+		this->renderId[index + 3] = images[2];
+		this->renderId[index + 4] = images[3];
+		this->renderId[index + 5] = images[4];
+		this->renderId[index + 6] = images[5];
+
+		this->renderId[index + 7] = d.second->EBO.size() * sizeof(uint);
+
+		free(images);
+
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
+		glEnableVertexAttribArray(2);
+		uint size = 6 * sizeof(float);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, size, (void*)0);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, size, (void*)(3 * sizeof(float)));
+		glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, size, (void*)(5 * sizeof(float)));
+
+
+		index += 8;
+
+		this->numOfVoxels++;
+	}
+
+
+	for (std::pair<TileType, VoxelRenderDataTemp*> p : this->data) {
+		delete p.second;
+	}
+	this->data.clear();
 }
 
 void RenderChunk::updateMesh() {
-	this->index = 0;
-	this->imageIndex = 0;
-	
 	for (int i = 0; i < CHUNK_WIDTH; i++) {
 		for (int j = 0; j < CHUNK_HEIGHT; j++) {
 			for (int k = 0; k < CHUNK_DEPTH; k++) {
 				//std::cout << i << "," << j << "," << k << std::endl;
-				uint meshLoc = i * (j * CHUNK_HEIGHT) + k;
-				TileType type = this->chunk->data[i][j][k];
+				glm::vec3 loc = glm::vec3(i, j, k) * VOXEL_SIZE;
+				TileType type = this->chunk->data[(int)i][(int)j][(int)k];
 
 				if (type == AIR) {
 					continue;
 				}
 
+				//TOP
 				if (j == CHUNK_HEIGHT-1 || this->chunk->data[i][j + 1][k] == AIR) {
 					// std::cout << "ADDING SQUARE 2\n";
 					//TOP
-					this->addSquare(meshLoc, meshLoc + 2, meshLoc + 3, meshLoc + 4, this->origImages->at(type)[0]);
+					this->buildFace(type, TOP, loc);
 				}
 
-				meshLoc += 4;
-
+				//BOTTOM
 				if (j == 0 || this->chunk->data[i][j - 1][k] == AIR) {
 					// std::cout << "ADDING SQUARE 2\n";
 					//BOTTOM
-					this->addSquare(meshLoc, meshLoc + 2, meshLoc + 3, meshLoc + 4, this->origImages->at(type)[1]);
+					this->buildFace(type, BOTTOM, loc);
 				}
 
-				meshLoc += 4;
-
-				if (i == CHUNK_WIDTH-1 || this->chunk->data[i + 1][j][k] == AIR) {
+				//RIGHT
+				if (i == 0 || this->chunk->data[i + 1][j][k] == AIR) {
 					// std::cout << "ADDING SQUARE 2\n";
 					//RIGHT
-					this->addSquare(meshLoc, meshLoc + 2, meshLoc + 3, meshLoc + 4, this->origImages->at(type)[2]);
+					this->buildFace(type, RIGHT, loc);
 				}
-
-				meshLoc += 4;
 				
-				if (i == 0 || this->chunk->data[i - 1][j][k] == AIR) {
+				//LEFT
+				if (i == CHUNK_WIDTH-1 || this->chunk->data[i - 1][j][k] == AIR) {
 					// std::cout << "ADDING SQUARE 2\n";
 					//LEFT
-					this->addSquare(meshLoc, meshLoc + 2, meshLoc + 3, meshLoc + 4, this->origImages->at(type)[3]);
+					this->buildFace(type, LEFT, loc);
 				}
 
-				meshLoc += 4;
 
+
+				//BACK
 				if (k == CHUNK_DEPTH-1 || this->chunk->data[i][j][k+1] == AIR) {
 					// std::cout << "ADDING SQUARE 2\n";
 					//BACK
-					this->addSquare(meshLoc, meshLoc + 2, meshLoc + 3, meshLoc + 4, this->origImages->at(type)[4]);
+					this->buildFace(type, BACK, loc);
 				}
 
-				meshLoc += 4;
 
+
+				//FRONT
 				if (k == 0 || this->chunk->data[i][j][k - 1] == AIR) {
 					// std::cout << "ADDING SQUARE 2\n";
 					//FRONT
-					this->addSquare(meshLoc, meshLoc + 2, meshLoc + 3, meshLoc + 4, this->origImages->at(type)[5]);
+					this->buildFace(type, FRONT, loc);
 				}
 			}
 		}
 	}
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->index, this->data, GL_DYNAMIC_DRAW);
+	this->buildBuffers();
 
 }
 
@@ -120,25 +231,39 @@ void RenderChunk::render(Shader *s) {
 	//std::cout << "RENDERING\n";
 
 	glm::mat4 offset = glm::mat4(1.0f);
-	offset = glm::translate(offset, glm::vec3(this->x, this->y, 0));
+	offset = glm::translate(offset, glm::vec3(this->x * CHUNK_WIDTH/2, 0, this->y * CHUNK_DEPTH));
 
 	s->setMat4("offset", offset);
 
-	for (int i = 0; i < this->imageIndex; i++) {
-		std::cout << i << std::endl;
-		//std::cout << "DRAWING FACE\n";
-		glBindTexture(GL_TEXTURE_2D, this->images[i]);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)(6*i));
+	for (int i = 0; i < this->numOfVoxels; i++) {
+
+		int l = i * 8;
+		glBindVertexArray(this->renderId[l]);
+
+		for (int j = 1; j < 7; j++) {
+			glActiveTexture(GL_TEXTURE0 + (j-1));
+
+			glBindTexture(GL_TEXTURE_2D, renderId[l + j]);
+		}
+
+		//std::cout << i << std::endl;
+
+		//std::cout << this->renderId[l + 7]/sizeof(uint) << std::endl;
+		
+		glDrawElements(GL_TRIANGLES, this->renderId[l+7], GL_UNSIGNED_INT, (void*)0);
 	}
 	
 }
 
 RenderChunk::RenderChunk(){
-	this->index = 0;
-	this->imageIndex = 0;
-	this->EBO = 0;
+	this->x = 0;
+	this->y = 0;
+}
 
-	this->origImages = nullptr;
-	
+RenderChunk::~RenderChunk() {
+	for (std::pair<TileType, VoxelRenderDataTemp*> p : this->data) {
+		delete p.second;
+	}
+	free(this->renderId);
 }
 

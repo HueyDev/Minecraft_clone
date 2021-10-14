@@ -12,8 +12,8 @@ struct Game {
 	Shader* shader;
 	Camera* camera;
 
-	RenderChunk *chunks[NUMBER_OF_CHUNKS];
-	uint numberOfChunks = 1;
+	RenderChunk *chunks[WORLD_CHUNK_WIDTH * WORLD_CHUNK_HEIGHT];
+	uint numberOfChunks = NUMBER_OF_CHUNKS;
 
 	Game();
 	~Game();

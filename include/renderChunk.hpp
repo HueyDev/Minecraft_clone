@@ -6,34 +6,42 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <vector>
+#include <iterator>
 
+enum Face {
+	TOP, BOTTOM, RIGHT, LEFT, BACK, FRONT
+};
+
+struct VoxelRenderDataTemp {
+	uint index = 0;
+	std::vector<float> vertex;
+	std::vector<uint> EBO;
+};
 
 struct RenderChunk {
 
-	uint x, y;
+	uint x, y, numOfVoxels;
 
 	Chunk *chunk;
 
-	uint index;
-	uint imageIndex;
-	uint EBO;
+	std::map<TileType, VoxelRenderDataTemp*> data;
+	std::map<TileType, uint*>* images;
 
-	std::map<TileType, uint*>* origImages;
-
-	uint data[CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT * 6 * 2 * 3];
-	uint images[CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT * 6];
+	uint* renderId;
 
 	void updateMesh();
-	void addValue(uint val);
-	void addTriangle(uint x, uint y, uint z);
-	void addSquare(uint v1, uint v2, uint v3, uint v4, uint image);
 
-	
+
+	void buildFace(TileType t, Face f, glm::vec3 loc);
+	void buildBuffers();
 
 	void render(Shader *s);
 
 	RenderChunk();
-	RenderChunk(uint x, uint y, std::map<TileType, uint*>* origImages, Chunk *c);
+	RenderChunk(std::map<TileType, uint*>* images, uint x, uint y, Chunk *c);
+
+	~RenderChunk();
 
 };
 

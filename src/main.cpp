@@ -68,6 +68,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
+	//std::cout << "MOUSE CALLBACK";
 	if (firstMouse)
 	{
 		lastX = xpos;
@@ -93,8 +94,9 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 
 
 void render() {
+	//std::cout << "RENDER\n";
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	game->render();
 }
 
@@ -143,6 +145,10 @@ int main() {
 	glfwSwapInterval(1);
 
 	game = new Game();
+
+	glEnable(GL_DEPTH_TEST);
+
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	while (!glfwWindowShouldClose(window))
 	{
