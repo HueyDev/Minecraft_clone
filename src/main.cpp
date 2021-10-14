@@ -85,7 +85,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
   // std::cout << "Last pos: " << lastX << " , " << lastY << std::endl;
   // std::cout << "Current pos: " << xpos << " , " << ypos << std::endl;
 
-  glfwSetCursorPos(window, 0, 0);
+	//glfwSetCursorPos(window, 0, 0);
 
 	lastX = xpos;
 	lastY = ypos;
@@ -152,7 +152,7 @@ int main() {
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 
-	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 #pragma endregion
 
