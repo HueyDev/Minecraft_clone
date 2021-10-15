@@ -21,7 +21,7 @@ void main()
 
     vec3 lightColor = vec3(1.0, 1.0, 1.0);
 
-    float ambientValue = 0.3;
+    float ambientValue = 0.5;
     float diff = max(dot(normal, lightDir), 0.0);
     
     vec3 ambient = lightColor * ambientValue;

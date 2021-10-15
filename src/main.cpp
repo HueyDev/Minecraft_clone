@@ -4,6 +4,8 @@
 #include <iostream>
 #include <chrono>
 
+#define REPLIT
+
 bool firstMouse = true;
 float lastY, lastX;
 
@@ -95,7 +97,9 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
+  #ifndef REPLIT
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  #endif
 
 }
 
@@ -153,7 +157,9 @@ int main() {
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 
+  #ifndef REPLIT
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  #endif
 
 #pragma endregion
 

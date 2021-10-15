@@ -19,8 +19,8 @@ typedef unsigned int	uint;
 #define CHUNK_HEIGHT 255
 
 //#define NUMBER_OF_CHUNKS 2
-#define WORLD_CHUNK_WIDTH 10
-#define WORLD_CHUNK_HEIGHT 10
+#define WORLD_CHUNK_WIDTH 5
+#define WORLD_CHUNK_HEIGHT 5
 
 #define MAP_SIZE 200000.0f
 
