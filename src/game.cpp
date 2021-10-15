@@ -5,8 +5,6 @@
 #include <stb_image.h>
 #include <stdlib.h>
 
-//TEST on BRANCH
-
 uint buildTexture(const char* filePath) {
 
     std::cout << "Compiling image at " << filePath << std::endl;
