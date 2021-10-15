@@ -53,6 +53,23 @@ glm::mat4 getBoxFace(Face f) {
 	}
 }
 
+glm::vec3 getFaceNormal(Face f) {
+	switch (f) {
+	case TOP:
+		return glm::vec3(0.0f, 1.0f, 0.0f);
+	case BOTTOM:
+		return glm::vec3(0.0f, -1.0f, 0.0f);
+	case RIGHT:
+		return glm::vec3(1.0f, 0.0f, 0.0f);
+	case LEFT:
+		return glm::vec3(-1.0f, 0.0f, 0.0f);
+	case BACK:
+		return glm::vec3(0.0f, 0.0f, 1.0f);
+	case FRONT:
+		return glm::vec3(0.0f, 0.0f, -1.0f);
+	}
+}
+
 void RenderChunk::buildFace(TileType t, Face f, glm::vec3 loc) {
 	if (this->data.find(t) == this->data.end()) {
 		this->data.insert(std::pair<TileType, VoxelRenderDataTemp*>(t, new VoxelRenderDataTemp()));
@@ -68,6 +85,12 @@ void RenderChunk::buildFace(TileType t, Face f, glm::vec3 loc) {
 		data->vertex.push_back(defaultFace[ind+3]);
 		data->vertex.push_back(defaultFace[ind+4]);
 		data->vertex.push_back(f);
+
+		glm::vec3 normal = getFaceNormal(f);
+		data->vertex.push_back(normal.x);
+		data->vertex.push_back(normal.y);
+		data->vertex.push_back(normal.z);
+		
 
 		/*if (f != 0) {
 			std::cout << (float)f << std::endl;
@@ -124,8 +147,8 @@ void RenderChunk::buildBuffers() {
 
 		this->renderId[index] = VAO;
 
-		uint* images = (uint*)malloc(6 * sizeof(uint));
-		memcpy(images, this->images->at(d.first), 6 * sizeof(uint));
+		uint* images = (uint*)malloc(9 * sizeof(uint));
+		memcpy(images, this->images->at(d.first), 9 * sizeof(uint));
 
 		std::cout << "Building buffer for type " << d.first << std::endl;
 
@@ -143,10 +166,12 @@ void RenderChunk::buildBuffers() {
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
 		glEnableVertexAttribArray(2);
-		uint size = 6 * sizeof(float);
+		glEnableVertexAttribArray(3);
+		uint size = 9 * sizeof(float);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, size, (void*)0);
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, size, (void*)(3 * sizeof(float)));
 		glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, size, (void*)(5 * sizeof(float)));
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, size, (void*)(6 * sizeof(float)));
 
 
 		index += 8;
@@ -188,14 +213,14 @@ void RenderChunk::updateMesh() {
 				}
 
 				//RIGHT
-				if (i == 0 || this->chunk->data[i + 1][j][k] == AIR) {
+				if (i == 0 || this->chunk->data[i - 1][j][k] == AIR) {
 					// std::cout << "ADDING SQUARE 2\n";
 					//RIGHT
 					this->buildFace(type, RIGHT, loc);
 				}
 				
 				//LEFT
-				if (i == CHUNK_WIDTH-1 || this->chunk->data[i - 1][j][k] == AIR) {
+				if (i == CHUNK_WIDTH-1 || this->chunk->data[i + 1][j][k] == AIR) {
 					// std::cout << "ADDING SQUARE 2\n";
 					//LEFT
 					this->buildFace(type, LEFT, loc);
