@@ -4,7 +4,7 @@
 #include <iostream>
 #include <chrono>
 
-#define REPLIT
+//#define REPLIT
 
 bool firstMouse = true;
 float lastY, lastX;
@@ -161,8 +161,8 @@ int main() {
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
   #endif
 
-  glfwWindowHint(GLFW_SAMPLES, 16);
-  glEnable(GL_MULTISAMPLE);
+  //glfwWindowHint(GLFW_SAMPLES, 16);
+  //glEnable(GL_MULTISAMPLE);
 
 #pragma endregion
 
