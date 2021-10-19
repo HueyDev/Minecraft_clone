@@ -161,6 +161,9 @@ int main() {
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
   #endif
 
+  glfwWindowHint(GLFW_SAMPLES, 16);
+  glEnable(GL_MULTISAMPLE);
+
 #pragma endregion
 
 	glfwSwapInterval(1);
