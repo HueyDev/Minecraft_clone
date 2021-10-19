@@ -256,7 +256,7 @@ void RenderChunk::render(Shader *s) {
 	//std::cout << "RENDERING\n";
 
 	glm::mat4 offset = glm::mat4(1.0f);
-	offset = glm::translate(offset, glm::vec3(this->x * CHUNK_WIDTH/2, 0, this->y * CHUNK_DEPTH/2));
+	offset = glm::translate(offset, glm::vec3(this->x * CHUNK_WIDTH, 0, this->y * CHUNK_DEPTH));
 
 	s->setMat4("offset", offset);
 

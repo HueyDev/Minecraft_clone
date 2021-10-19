@@ -24,6 +24,6 @@ typedef unsigned int	uint;
 
 #define MAP_SIZE 200000.0f
 
-#define VOXEL_SIZE 0.5f
+#define VOXEL_SIZE 1.0f
 
 unsigned int maxIntSize();
