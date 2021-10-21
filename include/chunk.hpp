@@ -5,7 +5,7 @@
 
 struct Chunk {
 
-	TileType data[CHUNK_WIDTH][CHUNK_HEIGHT][CHUNK_DEPTH];
+	VoxelType data[CHUNK_WIDTH][CHUNK_HEIGHT][CHUNK_DEPTH];
 	uint x, y;
 
 	void (*updateCallback)(void *);

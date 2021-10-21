@@ -22,8 +22,19 @@ typedef unsigned int	uint;
 #define WORLD_CHUNK_WIDTH 5
 #define WORLD_CHUNK_HEIGHT 5
 
+#define LOAD_DISTANCE 7
+#define VIEW_DISTANCE 5
+
 #define MAP_SIZE 200000.0f
 
 #define VOXEL_SIZE 1.0f
 
-unsigned int maxIntSize();
+enum VoxelType {
+
+	TEST_VOXEL, AIR, DIRT, GRASS, STONE, COBBLESTONE, WATER
+
+};
+
+enum Face {
+	TOP, BOTTOM, RIGHT, LEFT, BACK, FRONT
+};

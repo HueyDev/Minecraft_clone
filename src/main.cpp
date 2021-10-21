@@ -1,10 +1,12 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <game.hpp>
+#include <vRenderEngine.hpp>
+#include <player.hpp>
 #include <iostream>
 #include <chrono>
+#include <global.hpp>
 
-//#define REPLIT
+#define REPLIT
 
 bool firstMouse = true;
 float lastY, lastX;
@@ -16,8 +18,6 @@ double lastTime = 0;
 int numOfFrames = 0;
 
 glm::vec3 cameraDir = glm::vec3(0, 0, 0);
-
-Game *game;
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 
@@ -72,7 +72,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
-	//std::cout << "MOUSE CALLBACK";
 	if (firstMouse)
 	{
 		lastX = xpos;
@@ -83,16 +82,10 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	float xoffset = xpos - lastX;
 	float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
 
-  // std::cout << "Mouse movement: " << xoffset << " , " << yoffset << std::endl;
-  // std::cout << "Last pos: " << lastX << " , " << lastY << std::endl;
-  // std::cout << "Current pos: " << xpos << " , " << ypos << std::endl;
-
-	//glfwSetCursorPos(window, 0, 0);
-
 	lastX = xpos;
 	lastY = ypos;
 
-	game->camera->ProcessMouseMovement(xoffset, yoffset, true);
+	vep::ProcessMouseMovement(xoffset, yoffset, true);
 }
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
@@ -100,7 +93,6 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
   #ifndef REPLIT
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
   #endif
-
 }
 
 
@@ -115,12 +107,12 @@ void render() {
 
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	game->render();
+	vre::render();
 }
 
 void update(float deltaTime) {
 	
-	game->camera->ProcessKeyboard(cameraDir, deltaTime);
+	vep::ProcessKeyboard(cameraDir, deltaTime);
 
 }
 
@@ -167,8 +159,6 @@ int main() {
 #pragma endregion
 
 	glfwSwapInterval(1);
-
-	game = new Game();
 
 	glEnable(GL_DEPTH_TEST);
 	glCullFace(GL_FRONT);
