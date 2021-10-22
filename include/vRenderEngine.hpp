@@ -1,6 +1,7 @@
 #pragma once
 
-namespace vre{
-  void render();
-  void buildVoxelImages();
+namespace vre {
+	void render();
+	void buildVoxelImages();
+	void init();
 }

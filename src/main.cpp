@@ -6,7 +6,7 @@
 #include <chrono>
 #include <global.hpp>
 
-#define REPLIT
+//#define REPLIT
 
 bool firstMouse = true;
 float lastY, lastX;
@@ -164,6 +164,7 @@ int main() {
 	glCullFace(GL_FRONT);
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	vre::init();
 
 	while (!glfwWindowShouldClose(window))
 	{

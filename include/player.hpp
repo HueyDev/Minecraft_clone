@@ -5,15 +5,15 @@
 #include <glad/glad.h>
 
 
-namespace vep{
+namespace vep {
 
-  glm::mat4 getViewMatrix();
+	glm::mat4 getViewMatrix();
 
-  glm::vec3 getPos();
+	glm::vec3 getPos();
 
-  void ProcessKeyboard(glm::vec3 dir, float deltaTime);
+	void ProcessKeyboard(glm::vec3 dir, float deltaTime);
 
-  void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainpitch);
+	void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainpitch);
 
 }
 

@@ -89,7 +89,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath, const char* geo
 // ------------------------------------------------------------------------
 void Shader::use()
 {
-    glUseProgram(ID);
+    glUseProgram(this->ID);
 }
 
 // utility uniform functions

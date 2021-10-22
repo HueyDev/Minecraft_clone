@@ -4,7 +4,7 @@
 #include <glad/glad.h>
 #include <global.hpp>
 
-namespace ve{
-  VoxelType *getChunk(glm::vec2 pos);
-  glm::vec2 worldToChunkLoc(glm::vec3 pos)
+namespace ve {
+	VoxelType* getChunk(glm::vec2 pos);
+	glm::vec2 worldToChunkLoc(glm::vec3 pos);
 }

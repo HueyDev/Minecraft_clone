@@ -50,7 +50,7 @@ uint** Chunk::genHeightMap() {
 
 	uint** data = 0;
 
-	data = new uint*[CHUNK_WIDTH];
+	data = new uint * [CHUNK_WIDTH];
 
 	//PerlinNoise pn = PerlinNoise(WORLD_SEED);
 	FastNoiseLite pn;
@@ -61,7 +61,7 @@ uint** Chunk::genHeightMap() {
 	for (int j = 0; j < CHUNK_WIDTH; j++) {
 		data[j] = new uint[CHUNK_DEPTH];
 		for (int i = 0; i < CHUNK_DEPTH; i++) {
-			data[j][i] = (uint)(pn.GetNoise((float)(j+this->x*CHUNK_WIDTH) / MAP_SIZE, (float)(i+this->y*CHUNK_DEPTH) / MAP_SIZE) * (MAX_HEIGHT-MIN_HEIGHT) + MIN_HEIGHT);
+			data[j][i] = (uint)(pn.GetNoise((float)(j + this->x * CHUNK_WIDTH) / MAP_SIZE, (float)(i + this->y * CHUNK_DEPTH) / MAP_SIZE) * (MAX_HEIGHT - MIN_HEIGHT) + MIN_HEIGHT);
 			/*if (data[j][i] > 16) {
 				std::cout << pn.GetNoise((float)(j + this->x * CHUNK_WIDTH) / MAP_SIZE, (float)(i + this->y * CHUNK_DEPTH) / MAP_SIZE) << " * (" << MAX_HEIGHT << " - " << MIN_HEIGHT << ") + " << MIN_HEIGHT << "  |  RESULT: " << data[j][i] << std::endl;
 			}*/
