@@ -1,2 +1,2 @@
 language = "bash"
-run = "cd build; cmake ..; make;./MINECRAFT;"
+run = "cd build; cmake --parallel 3 ..; make;./MINECRAFT;"

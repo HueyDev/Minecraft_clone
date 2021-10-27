@@ -80,8 +80,10 @@ namespace vre {
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, currentFaceId * sizeof(float), currentData, GL_STATIC_DRAW);
 
+        //std::cout << "VBO data sent building EBO\n";
         uint arraySize = (currentFaceId / 4 / 9) * (6);
-        uint *eboData = (uint *)malloc(arraySize);
+        uint *eboData = (uint *)malloc(arraySize * sizeof(uint));
+        //std::cout << "ARRAY ASSIGNED\n";
         for (int i = 0; i < (currentFaceId / 4 / 9); i++) {
             uint eboLoc = i * 6;
             uint vboLoc = i * 4;
@@ -92,16 +94,33 @@ namespace vre {
             eboData[eboLoc+4] = vboLoc + 2;
             eboData[eboLoc+5] = vboLoc + 3;
         }
+        //std::cout << "EBO DONE\n";
 
         glGenBuffers(1, &EBO);
+        //std::cout << "EBO assigned\n";
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        //std::cout << "EBO bound\n";
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, arraySize * sizeof(uint), eboData, GL_STATIC_DRAW);
 
+        //std::cout << "Freeing data\n";
         free(eboData);
 
         addVao(VAO, chunkPos, arraySize* sizeof(uint));
 
+        std::cout << currentFaceId << " << currentFaceId\n";
         currentFaceId = 0;
+
+        // 1      2      3      4      5      6           7         8         9
+        // Pos x, Pos y, Pos z, Tex x, Tex y, Texture Id, Normal x, Normal y, Normal z
+        uint size = 9 * sizeof(float);
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
+        glEnableVertexAttribArray(2);
+        glEnableVertexAttribArray(3);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, size, (void*)0);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, size, (void*)(3*sizeof(float)));
+        glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, size, (void*)(5*sizeof(float)));
+        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, size, (void*)(6*sizeof(float)));
     }
 
     VoxelType getChunkDataPoint(VoxelType* data, uint x, uint y, uint z) {
@@ -147,12 +166,14 @@ namespace vre {
     }
 
     void addFace(float* data) {
+        //std::cout << "Adding face\n";
         std::memcpy(&(currentData[currentFaceId]), data, FACE_SIZE * sizeof(float));
         currentFaceId += FACE_SIZE;
+        //std::cout << "FINISHED adding face\n";
     }
 
     void buildFace(VoxelType t, Face f, glm::vec3 pos) {
-
+        //std::cout << "Building face of type " << t << " on face " << f << "\n";
         float data[FACE_SIZE];
 
         for (int i = 0; i < 4; i++) {
@@ -173,11 +194,14 @@ namespace vre {
             data[dataPos + 7] = normal.y;
             data[dataPos + 8] = normal.z;
         }
+        //
         addFace(data);
     }
 
     void buildChunk(glm::vec2 chunkPos) {
         VoxelType* data = ve::getChunk(chunkPos);
+
+        std::cout << "Begin face gen\n";
 
         for (int x = 0; x < CHUNK_WIDTH; x++) {
             for (int y = 0; y < CHUNK_HEIGHT; y++) {
@@ -234,7 +258,7 @@ namespace vre {
                 }
             }
         }
-
+        std::cout << "Ready to send\n";
         sendChunkToGpu(chunkPos);
     }
 
@@ -278,6 +302,7 @@ namespace vre {
 
     void compileImages() {
         uint tex;
+        glActiveTexture(GL_TEXTURE0);
         glGenTextures(1, &tex);
         glBindTexture(GL_TEXTURE_3D, tex);
 
@@ -329,20 +354,32 @@ namespace vre {
         shader = new Shader("voxel.vs", "voxel.fs");
         buildVoxelImages();
 
-        buildChunk(glm::vec2(0, 0));
+        for(int x =-1; x < 3; x++){
+            for(int y=-1; y < 3; y++){
+                buildChunk(glm::vec2(x, y));
+            }
+        }
     }
 
     void render() {
+        //std::cout << "Rendering\n";
         shader->use();
+
+        //std::cout << "Shader active\n";
 
         glm::mat4 transform = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f) * vep::getViewMatrix();
 
         //buildChunk(ve::worldToChunkLoc(vep::getPos()));
+        shader->setMat4("transform", transform);
 
+        //std::cout << "Transform set rendering chunks\n";
         for (chunk c : chunkData) {
+            
             if (c.eboSize == 0) {
+                //std::cout << "INVALID CHUNK\n";
                 continue;
             }
+            //std::cout << "Drawing chunk " << c.eboSize << "\n";
             glm::mat4 offset = glm::translate(glm::mat4(1.0f), glm::vec3(c.pos.x * CHUNK_WIDTH, 0, c.pos.y * CHUNK_DEPTH));
 
             shader->setMat4("offset", offset);

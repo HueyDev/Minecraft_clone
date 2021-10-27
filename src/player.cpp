@@ -1,4 +1,5 @@
 #include <player.hpp>
+#include <iostream>
 
 
 namespace vep {
@@ -54,6 +55,7 @@ namespace vep {
 				pitch = -89.0f;
 		}
 
+        //std::cout << "Mouse info " << pitch << " , " << yaw << "\n";
 		//std::cout << this->pitch << std::endl;
 
 		// update front, right and up Vectors using the updated Euler angles

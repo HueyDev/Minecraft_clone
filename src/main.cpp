@@ -6,7 +6,7 @@
 #include <chrono>
 #include <global.hpp>
 
-//#define REPLIT
+#define REPLIT
 
 bool firstMouse = true;
 float lastY, lastX;
@@ -143,7 +143,7 @@ int main() {
 	}
 
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetCursorPosCallback(window, mouse_callback);
@@ -160,10 +160,10 @@ int main() {
 
 	glfwSwapInterval(1);
 
-	glEnable(GL_DEPTH_TEST);
-	glCullFace(GL_FRONT);
+	//glEnable(GL_DEPTH_TEST);
+	//glCullFace(GL_FRONT);
 
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	vre::init();
 
 	while (!glfwWindowShouldClose(window))

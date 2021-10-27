@@ -61,6 +61,7 @@ namespace ve {
 
 		chunk* c = findEmptyChunk();
 
+        std::cout << "Building Height Map\n";
 		uint** heightMap = genHeightMap(pos);
 
 		for (int j = 0; j < CHUNK_WIDTH; j++) {
@@ -87,6 +88,7 @@ namespace ve {
 		}
 
 		delete[] heightMap;
+        std::cout << "Chunk gen complete\n";
 		return c;
 	}
 
