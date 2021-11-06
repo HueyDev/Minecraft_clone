@@ -57,11 +57,11 @@ namespace ve {
 	}
 
 	chunk *generateChunk(glm::vec2 pos) {
-		std::cout << "Generating chunk at " << pos.x << "," << pos.y << "\n";
+		//std::cout << "Generating chunk at " << pos.x << "," << pos.y << "\n";
 
 		chunk* c = findEmptyChunk();
 
-        std::cout << "Building Height Map\n";
+        //std::cout << "Building Height Map\n";
 		uint** heightMap = genHeightMap(pos);
 
 		for (int j = 0; j < CHUNK_WIDTH; j++) {
@@ -88,7 +88,7 @@ namespace ve {
 		}
 
 		delete[] heightMap;
-        std::cout << "Chunk gen complete\n";
+        //std::cout << "Chunk gen complete\n";
 		return c;
 	}
 

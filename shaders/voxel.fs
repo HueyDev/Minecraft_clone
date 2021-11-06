@@ -5,7 +5,7 @@ in vec2 texCord;
 in vec3 normal;
 flat in float id;
 
-uniform sampler3D tex;
+uniform sampler2DArray tex;
 
 //uniform samplerCube tex;
 
@@ -23,9 +23,9 @@ void main()
     vec3 ambient = lightColor * ambientValue;
     vec3 diffuse = lightColor * diff;
     
-    //FragColor = texture(tex, vec3(texCord.xy, id));
+    FragColor = texture(tex, vec3(texCord.xy, id));
     //
     //FragColor = (vec4(ambient, 1.0) + vec4(diffuse, 1.0)) * FragColor;
-    FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+    //FragColor = vec4(0.0, 1.0, 0.0, 1.0);
     
 }

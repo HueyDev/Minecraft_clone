@@ -3,11 +3,11 @@
 
 #define HEIGHT_MAP_FREQUENCY 10000.0f
 
-#define SCREEN_WIDTH 400
-#define SCREEN_HEIGHT 200
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 600
 
 //#define uint unsigned int
-typedef unsigned int	uint;
+typedef unsigned int uint;
 
 #define MIN_HEIGHT 100
 #define MAX_HEIGHT 132

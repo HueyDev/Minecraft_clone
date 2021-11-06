@@ -6,7 +6,7 @@
 #include <chrono>
 #include <global.hpp>
 
-#define REPLIT
+//#define REPLIT
 
 bool firstMouse = true;
 float lastY, lastX;
@@ -114,6 +114,11 @@ void update(float deltaTime) {
 	
 	vep::ProcessKeyboard(cameraDir, deltaTime);
 
+	GLenum r = glGetError();
+	if (r != 0) {
+		std::cout << "OPENGL ERROR at line UPDATE: " << r << "\n";
+	}
+
 }
 
 
@@ -160,10 +165,10 @@ int main() {
 
 	glfwSwapInterval(1);
 
-	//glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
 	//glCullFace(GL_FRONT);
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	vre::init();
 
 	while (!glfwWindowShouldClose(window))

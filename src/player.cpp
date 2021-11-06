@@ -2,16 +2,17 @@
 #include <iostream>
 
 
+
 namespace vep {
 
 	glm::vec3 front;
-	glm::vec3 up;
+	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 	glm::vec3 right;
-	glm::vec3 worldUp;
+	glm::vec3 worldUp = up;
 
 	float yaw = -90.0f;
 	float pitch = 0.0f;
-	float speed = 5.0f;
+	float speed = 10.0f;
 	float MouseSensitivity = 1.0f;
 	float ZOOM = 45.0f;
 
@@ -19,6 +20,11 @@ namespace vep {
 
 	glm::mat4 getViewMatrix()
 	{
+		/*std::cout << glm::to_string(position) << std::endl;
+		std::cout << glm::to_string(front) << std::endl;
+		std::cout << glm::to_string(up) << std::endl;
+		std::cout << glm::to_string(worldUp) << std::endl;
+		std::cout << glm::to_string(glm::lookAt(position, position + front, up)) << "\n"; */
 		return glm::lookAt(position, position + front, up);
 	}
 
@@ -26,15 +32,15 @@ namespace vep {
 	void updateCameraVectors()
 	{
 		// calculate the new front vector
-		glm::vec3 front;
-		front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-		front.y = sin(glm::radians(pitch));
+		glm::vec3 lfront;
+		lfront.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+		lfront.y = sin(glm::radians(pitch));
 		//front.y = 0;
-		front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-		front = glm::normalize(front);
+		lfront.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+		front = glm::normalize(lfront);
 		// also re-calculate the right and up vector
-		right = glm::normalize(glm::cross(front, worldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
-		up = glm::normalize(glm::cross(right, front));
+		right = glm::normalize(glm::cross(lfront, worldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+		up = glm::normalize(glm::cross(right, lfront));
 	}
 
 	// processes input received from a mouse input system. Expects the offset value in both the x and y direction.
@@ -55,11 +61,13 @@ namespace vep {
 				pitch = -89.0f;
 		}
 
+
         //std::cout << "Mouse info " << pitch << " , " << yaw << "\n";
 		//std::cout << this->pitch << std::endl;
 
 		// update front, right and up Vectors using the updated Euler angles
 		updateCameraVectors();
+		//std::cout << glm::to_string(front) << std::endl;
 	}
 
 	void ProcessKeyboard(glm::vec3 dir, float deltaTime)

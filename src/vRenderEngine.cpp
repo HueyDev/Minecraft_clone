@@ -53,11 +53,13 @@ namespace vre {
     //                Face        Block  CHUNK
     float currentData[FACE_SIZE * 6 * CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT];
     uint currentFaceId = 0;
+    uint testVAO = 0;
 
     std::map<VoxelType, uint*> imageLookup;
     std::vector<const char*> imageLoc;
 
     Shader* shader;
+    Shader* uiShader;
 
     void addVao(uint id, glm::vec2 pos, uint eboSize) {
         for (int i = 0; i < (LOAD_DISTANCE * LOAD_DISTANCE); i++) {
@@ -107,7 +109,7 @@ namespace vre {
 
         addVao(VAO, chunkPos, arraySize* sizeof(uint));
 
-        std::cout << currentFaceId << " << currentFaceId\n";
+        //std::cout << currentFaceId << " << currentFaceId\n";
         currentFaceId = 0;
 
         // 1      2      3      4      5      6           7         8         9
@@ -201,7 +203,7 @@ namespace vre {
     void buildChunk(glm::vec2 chunkPos) {
         VoxelType* data = ve::getChunk(chunkPos);
 
-        std::cout << "Begin face gen\n";
+        //std::cout << "Begin face gen\n";
 
         for (int x = 0; x < CHUNK_WIDTH; x++) {
             for (int y = 0; y < CHUNK_HEIGHT; y++) {
@@ -258,7 +260,7 @@ namespace vre {
                 }
             }
         }
-        std::cout << "Ready to send\n";
+        //std::cout << "Ready to send\n";
         sendChunkToGpu(chunkPos);
     }
 
@@ -304,17 +306,17 @@ namespace vre {
         uint tex;
         glActiveTexture(GL_TEXTURE0);
         glGenTextures(1, &tex);
-        glBindTexture(GL_TEXTURE_3D, tex);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, tex);
 
         std::vector<GLubyte> emptyData(IMAGE_WIDTH * IMAGE_HEIGHT * imageLoc.size() * 4, 0);
-        glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB, IMAGE_WIDTH, IMAGE_HEIGHT, imageLoc.size(), 0, GL_RGBA, GL_UNSIGNED_BYTE, &emptyData[0]);
+        glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGB, IMAGE_WIDTH, IMAGE_HEIGHT, imageLoc.size(), 0, GL_RGBA, GL_UNSIGNED_BYTE, &emptyData[0]);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
-        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
         // set texture filtering parameters
-        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
         for (int i = 0; i < imageLoc.size(); i++) {
             int width, height, nrChannels;
@@ -322,7 +324,7 @@ namespace vre {
             unsigned char* data = stbi_load(("resources/" + std::string(filePath)).c_str(), &width, &height, &nrChannels, 0);
             if (data)
             {
-                glTexSubImage3D(GL_TEXTURE_3D, 0, 0, 0, i, IMAGE_WIDTH, IMAGE_HEIGHT, 1, GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
+                glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, IMAGE_WIDTH, IMAGE_HEIGHT, 1, GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
             }
             else
             {
@@ -331,7 +333,7 @@ namespace vre {
             stbi_image_free(data);
         }
 
-        glGenerateMipmap(GL_TEXTURE_3D);
+        glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
     }
 
     void buildVoxelImages() {
@@ -348,7 +350,39 @@ namespace vre {
         compileImages();
     }
 
+    void buildTestVAO()
+    {
+        uiShader = new Shader("UI.vs", "UI.fs");
 
+        uint VAO, VBO, EBO;
+        glGenVertexArrays(1, &VAO);
+        glBindVertexArray(VAO);
+
+        float testFace[4 * 3] = {
+      -VOXEL_SIZE / 2, -VOXEL_SIZE / 2, 0.0f,
+      VOXEL_SIZE / 2, -VOXEL_SIZE / 2, 0.0f, 
+      VOXEL_SIZE / 2,  VOXEL_SIZE / 2, 0.0f, 
+      -VOXEL_SIZE / 2,  VOXEL_SIZE / 2, 0.0f
+        };
+
+        glGenBuffers(1, &VBO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, (4*3) * sizeof(float), testFace, GL_STATIC_DRAW);
+
+        uint defaultEBO[] = {
+            0, 1, 2,
+            0, 2, 3
+        };
+
+        glGenBuffers(1, &EBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(uint), defaultEBO, GL_STATIC_DRAW);
+
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
+
+        testVAO = VAO;
+    }
 
     void init() {
         shader = new Shader("voxel.vs", "voxel.fs");
@@ -359,11 +393,26 @@ namespace vre {
                 buildChunk(glm::vec2(x, y));
             }
         }
+
+        //buildTestVAO();
+
+        vep::updateCameraVectors();
     }
 
     void render() {
         //std::cout << "Rendering\n";
+        /*uiShader->use();
+
+        glBindVertexArray(testVAO);
+
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)0);*/
+
         shader->use();
+
+        GLenum r = glGetError();
+        if (r != 0) {
+            std::cout << "OPENGL ERROR at line 412: " << r << "\n";
+        }
 
         //std::cout << "Shader active\n";
 
@@ -371,6 +420,11 @@ namespace vre {
 
         //buildChunk(ve::worldToChunkLoc(vep::getPos()));
         shader->setMat4("transform", transform);
+
+        r = glGetError();
+        if (r != 0) {
+            std::cout << "OPENGL ERROR at line 424: " << r << "\n";
+        }
 
         //std::cout << "Transform set rendering chunks\n";
         for (chunk c : chunkData) {
@@ -382,10 +436,25 @@ namespace vre {
             //std::cout << "Drawing chunk " << c.eboSize << "\n";
             glm::mat4 offset = glm::translate(glm::mat4(1.0f), glm::vec3(c.pos.x * CHUNK_WIDTH, 0, c.pos.y * CHUNK_DEPTH));
 
+            r = glGetError();
+            if (r != 0) {
+                std::cout << "OPENGL ERROR at line 439: " << r << "\n";
+            }
+
             shader->setMat4("offset", offset);
             glBindVertexArray(c.id);
 
+            r = glGetError();
+            if (r != 0) {
+                std::cout << "OPENGL ERROR at line 447: " << r << "\n";
+            }
+
             glDrawElements(GL_TRIANGLES, c.eboSize, GL_UNSIGNED_INT, (void*)0);
+
+            /*r = glGetError();
+            if (r != 0) {
+                std::cout << "OPENGL ERROR at line 454: " << r << "\n";
+            }*/
         }
 
 

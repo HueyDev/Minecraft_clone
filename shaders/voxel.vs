@@ -15,7 +15,8 @@ flat out float id;
 void main()
 {
     gl_Position = transform * offset * vec4(aPos, 1.0);
-    //gl_Position = vec4(0.0, 0.0, aPos.z, 1.0);
+    //gl_Position = transform * vec4(aPos, 1.0);
+    //gl_Position = vec4(aPos, 1.0);
     texCord = aTexCord;
     id = tid;
     normal = aNormal;
