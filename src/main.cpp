@@ -6,7 +6,7 @@
 #include <chrono>
 #include <global.hpp>
 
-//#define REPLIT
+#define REPLIT
 
 bool firstMouse = true;
 float lastY, lastX;
