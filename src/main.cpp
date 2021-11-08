@@ -148,7 +148,7 @@ int main() {
 	}
 
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetCursorPosCallback(window, mouse_callback);
@@ -166,7 +166,7 @@ int main() {
 	glfwSwapInterval(1);
 
 	glEnable(GL_DEPTH_TEST);
-	//glCullFace(GL_FRONT);
+	glCullFace(GL_FRONT);
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	vre::init();

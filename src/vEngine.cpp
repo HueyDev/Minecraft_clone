@@ -19,6 +19,21 @@ namespace ve {
 
 	uint viewRange = 2;
 
+	void print2dArrayInt(uint** data, int sizeX, int sizeY) {
+		for (int x = 0; x < sizeY; x++) {
+			int t = 0;
+			for (int y = 0; y < sizeX; y++) {
+				std::cout << data[y][x] << " ";
+				if (t > 10) {
+					std::cout << " |\n";
+					t = 0;
+				}
+				t++;
+			}
+			std::cout << '\n\n';
+		}
+	}
+
 	uint** genHeightMap(glm::vec2 pos) {
 
 		uint** data = 0;
@@ -63,6 +78,9 @@ namespace ve {
 
         //std::cout << "Building Height Map\n";
 		uint** heightMap = genHeightMap(pos);
+
+		std::cout << "\nCHUNK MAP\n";
+		//print2dArrayInt(heightMap, CHUNK_WIDTH, CHUNK_HEIGHT);
 
 		for (int j = 0; j < CHUNK_WIDTH; j++) {
 			for (int i = 0; i < CHUNK_HEIGHT; i++) {

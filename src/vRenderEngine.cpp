@@ -396,7 +396,7 @@ namespace vre {
 
         //buildTestVAO();
 
-        vep::updateCameraVectors();
+        vep::setPos(glm::vec3(0, 150, 0));
     }
 
     void render() {
@@ -434,7 +434,7 @@ namespace vre {
                 continue;
             }
             //std::cout << "Drawing chunk " << c.eboSize << "\n";
-            glm::mat4 offset = glm::translate(glm::mat4(1.0f), glm::vec3(c.pos.x * CHUNK_WIDTH, 0, c.pos.y * CHUNK_DEPTH));
+            glm::mat4 offset = glm::translate(glm::mat4(1.0f), glm::vec3(c.pos.x * (CHUNK_WIDTH + CHUNK_SPACING), 0, c.pos.y * (CHUNK_DEPTH + CHUNK_SPACING) ));
 
             r = glGetError();
             if (r != 0) {

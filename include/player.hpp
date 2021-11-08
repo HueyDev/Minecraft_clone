@@ -19,5 +19,6 @@ namespace vep {
 
 	void updateCameraVectors();
 
+	void setPos(glm::vec3 p);
 }
 

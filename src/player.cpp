@@ -87,6 +87,11 @@ namespace vep {
 			position -= glm::vec3(0.0f, 1.0f, 0.0f) * velocity;
 	}
 
+	void setPos(glm::vec3 p) {
+		position = p;
+		updateCameraVectors();
+	}
+
 	glm::vec3 getPos() {
 		return position;
 	}

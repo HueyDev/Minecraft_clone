@@ -29,12 +29,16 @@ typedef unsigned int uint;
 
 #define VOXEL_SIZE 1.0f
 
+#define CHUNK_SPACING 1
+
 enum VoxelType {
 
 	TEST_VOXEL, AIR, DIRT, GRASS, STONE, COBBLESTONE, WATER
 
 };
 
+
+//NUMBER DEPENDENT DO NOT CHANGE FIRST 6
 enum Face {
 	TOP, BOTTOM, RIGHT, LEFT, BACK, FRONT
 };
